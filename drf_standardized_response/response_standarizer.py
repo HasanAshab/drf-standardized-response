@@ -54,11 +54,13 @@ class ResponseStandardizer:
             standardized_data = {"message": standardized_data}
         elif self.should_wrap():
             if isinstance(standardized_data, dict):
-                unwrapped_data = {
-                    field: standardized_data.pop(field, None)
-                    for field in self.get_wrapping_excluded_fields()
-                    if field is not None
-                }
+                unwrapped_data = {}
+                for field in self.get_wrapping_excluded_fields():
+                    try:
+                        unwrapped_data[field] = standardized_data.pop(field)
+                    except KeyError:
+                        continue
+
                 standardized_data = {
                     wrapper_key: standardized_data,
                     **unwrapped_data,
