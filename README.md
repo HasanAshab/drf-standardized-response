@@ -198,6 +198,9 @@ REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_standardized_response.openapi.AutoSchema"
 }
 ```
+
+Alternatively, you can use the `drf_standardized_response.openapi.StandardizedAutoSchemaMixin` mixin to your own schema class. (useful when using `drf-standardized-errors`).
+
 Now, the OpenAPI schema will be generated with the standardized response format.
 
 ### Disable Schema Standardization On Serializer

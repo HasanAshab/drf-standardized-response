@@ -3,7 +3,7 @@ from drf_spectacular.utils import OpenApiResponse
 from .settings import package_settings
 
 
-class AutoSchema(BaseAutoSchema):
+class StandardizedSchemaMixin:
     def _get_response_for_code(
         self, serializer, status_code, media_types=None, direction="response"
     ):
@@ -34,8 +34,6 @@ class AutoSchema(BaseAutoSchema):
             and self._response_standardizer.should_standardize()
         ):
             return response
-
-        print(reference)
 
         formatted_schema = self._standardize_response_schema(reference)
         content["application/json"]["schema"] = formatted_schema
@@ -74,3 +72,7 @@ class AutoSchema(BaseAutoSchema):
         standardized_schema["properties"]["data"] = schema
 
         return standardized_schema
+
+
+class AutoSchema(BaseAutoSchema, StandardizedSchemaMixin):
+    pass
