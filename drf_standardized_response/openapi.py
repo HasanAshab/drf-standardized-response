@@ -35,11 +35,29 @@ class AutoSchema(BaseAutoSchema):
         ):
             return response
 
+        print(reference)
+
         formatted_schema = self._standardize_response_schema(reference)
         content["application/json"]["schema"] = formatted_schema
         return response
 
     def _standardize_response_schema(self, reference):
+        standardized_schema = {
+            "type": "object",
+            "properties": {
+                "success": {"type": "boolean"},
+                "message": {"type": "string"},
+            },
+        }
+
+        if not self._response_standardizer.should_wrap():
+            return {
+                "allOf": [
+                    {"$ref": reference},
+                    standardized_schema,
+                ]
+            }
+
         schema_name = reference.split("/")[-1]
         schema_key = (schema_name, "schemas")
         schema = self.registry._components[schema_key].schema
@@ -52,12 +70,7 @@ class AutoSchema(BaseAutoSchema):
             if field is not None
         }
 
-        return {
-            "type": "object",
-            "properties": {
-                "success": {"type": "boolean"},
-                "message": {"type": "string"},
-                "data": schema,
-                **unwrapped_data,
-            },
-        }
+        standardized_schema["properties"].update(unwrapped_data)
+        standardized_schema["properties"]["data"] = schema
+
+        return standardized_schema
