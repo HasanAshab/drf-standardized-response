@@ -1,5 +1,5 @@
 # DRF Standardized Response
-A set of custom validators for validating date and datetime fields for Django.
+Standarize your API responses
 
 ## Table of Contents
 
