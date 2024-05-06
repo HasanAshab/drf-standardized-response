@@ -68,7 +68,7 @@ DEFAULTS = {
     "DEFFAULT_WRAPPER_KEY": "data",
     "WRAP_PAGINATED_RESPONSE": False,
     "DEFFAULT_WRAPPING_EXCLUDED_FIELDS": ("links",),
-    "RESPONSE_STANDARDIZER_CLASS": "response_standarizer.ResponseStandardizer",
+    "RESPONSE_STANDARDIZER_CLASS": "drf_standardized_response.response_standarizer.ResponseStandardizer",
 }
 
 IMPORT_STRINGS = ("RESPONSE_STANDARDIZER_CLASS",)

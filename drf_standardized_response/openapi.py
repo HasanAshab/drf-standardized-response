@@ -3,7 +3,7 @@ from drf_spectacular.utils import OpenApiResponse
 from .settings import package_settings
 
 
-class StandardizedAutoSchema(BaseAutoSchema):
+class AutoSchema(BaseAutoSchema):
     def _get_response_for_code(
         self, serializer, status_code, media_types=None, direction="response"
     ):
