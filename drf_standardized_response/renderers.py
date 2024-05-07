@@ -8,7 +8,8 @@ class StandardizedJSONRenderer(DefaultJSONRenderer):
             return super().render(data, accepted_media_type, renderer_context)
 
         response_standardizer = package_settings.RESPONSE_STANDARDIZER_CLASS(
-            renderer_context["view"]
+            view=renderer_context["view"],
+            request=renderer_context["request"],
         )
         if response_standardizer.should_standardize():
             data = response_standardizer.standardize(

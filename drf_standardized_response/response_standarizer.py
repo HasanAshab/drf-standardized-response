@@ -3,29 +3,9 @@ from .settings import package_settings
 
 
 class ResponseStandardizer:
-    def __init__(self, view):
+    def __init__(self, view, request):
         self.view = view
-
-    def should_standardize(self):
-        return getattr(
-            self.view,
-            "should_strandardize",
-            True,
-        )
-
-    def should_wrap(self):
-        pagination = getattr(
-            self.view,
-            "pagination_class",
-            None,
-        )
-        if (
-            not package_settings.WRAP_PAGINATED_RESPONSE
-            and pagination is not None
-        ):
-            return False
-
-        return True
+        self.request = request
 
     def get_wrapper_key(self):
         return getattr(
@@ -45,14 +25,42 @@ class ResponseStandardizer:
     def is_successful_response(self, response):
         return 199 < response.status_code < 400
 
+    def is_paginated_response(self, response):
+        pagination = getattr(
+            self.view,
+            "pagination_class",
+            None,
+        )
+        return pagination is not None and self.request.method == "GET"
+
+    def should_standardize(self):
+        return getattr(
+            self.view,
+            "should_strandardize",
+            True,
+        )
+
+    def should_wrap(self, response):
+        if (
+            not package_settings.WRAP_PAGINATED_RESPONSE
+            and self.is_paginated_response(response)
+        ):
+            return False
+
+        if not self.is_successful_response(response):
+            return False
+
+        return True
+
     def standardize(self, response):
         wrapper_key = self.get_wrapper_key()
         is_successful = self.is_successful_response(response)
+        standard_message = self.get_standard_message(response)
         standardized_data = {} if response.data is None else response.data
 
         if isinstance(standardized_data, str):
             standardized_data = {"message": standardized_data}
-        elif self.should_wrap():
+        elif self.should_wrap(response):
             if isinstance(standardized_data, dict):
                 unwrapped_data = {}
                 for field in self.get_wrapping_excluded_fields():
@@ -70,9 +78,10 @@ class ResponseStandardizer:
                     wrapper_key: standardized_data,
                 }
 
-        if "success" not in standardized_data:
-            standardized_data["success"] = is_successful
-        if "message" not in standardized_data:
-            standardized_data["message"] = self.get_standard_message(response)
+        if isinstance(standardized_data, dict):
+            if "success" not in standardized_data:
+                standardized_data["success"] = is_successful
+            if "message" not in standardized_data:
+                standardized_data["message"] = standard_message
 
         return standardized_data

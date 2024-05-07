@@ -1,3 +1,5 @@
+from django.test.client import RequestFactory
+from rest_framework.response import Response
 from drf_standardized_errors.openapi import AutoSchema as BaseAutoSchema
 from drf_spectacular.utils import OpenApiResponse
 from .settings import package_settings
@@ -7,9 +9,14 @@ class StandardizedSchemaMixin:
     def _get_response_for_code(
         self, serializer, status_code, media_types=None, direction="response"
     ):
+        dummy_request = RequestFactory().get(self.path)
         self._response_standardizer = (
-            package_settings.RESPONSE_STANDARDIZER_CLASS(self._view)
+            package_settings.RESPONSE_STANDARDIZER_CLASS(
+                view=self._view,
+                request=dummy_request,
+            )
         )
+
         response = super()._get_response_for_code(
             serializer, status_code, media_types, direction
         )
@@ -40,6 +47,7 @@ class StandardizedSchemaMixin:
         return response
 
     def _standardize_response_schema(self, reference):
+        dummy_response = Response(status=200)
         standardized_schema = {
             "type": "object",
             "properties": {
@@ -48,7 +56,7 @@ class StandardizedSchemaMixin:
             },
         }
 
-        if not self._response_standardizer.should_wrap():
+        if not self._response_standardizer.should_wrap(dummy_response):
             return {
                 "allOf": [
                     {"$ref": reference},
