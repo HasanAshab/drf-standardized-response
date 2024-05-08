@@ -1,7 +1,7 @@
 from django.test.client import RequestFactory
 from rest_framework.response import Response
 from drf_spectacular.utils import OpenApiResponse
-from .settings import package_settings
+from drf_standardized_response.settings import package_settings
 
 
 class StandardizedSchemaMixin:

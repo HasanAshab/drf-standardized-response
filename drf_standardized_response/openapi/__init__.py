@@ -1,4 +1,4 @@
-from drf_standardized_errors.openapi import AutoSchema as BaseAutoSchema
+from drf_spectacular.openapi import AutoSchema as BaseAutoSchema
 from .mixins import StandardizedSchemaMixin
 
 
