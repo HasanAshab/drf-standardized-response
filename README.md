@@ -199,7 +199,7 @@ REST_FRAMEWORK = {
 }
 ```
 
-Alternatively, you can use the `drf_standardized_response.openapi.StandardizedAutoSchemaMixin` mixin to your own schema class. (useful when using `drf-standardized-errors`).
+Alternatively, you can use the `drf_standardized_response.openapi.mixins.StandardizedAutoSchemaMixin` mixin to your own schema class. (useful when using with [drf-standardized-errors](https://github.com/ghazi-git/drf-standardized-errors)).
 
 Now, the OpenAPI schema will be generated with the standardized response format.
 

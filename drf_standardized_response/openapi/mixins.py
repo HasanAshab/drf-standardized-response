@@ -1,6 +1,5 @@
 from django.test.client import RequestFactory
 from rest_framework.response import Response
-from drf_standardized_errors.openapi import AutoSchema as BaseAutoSchema
 from drf_spectacular.utils import OpenApiResponse
 from .settings import package_settings
 
@@ -80,7 +79,3 @@ class StandardizedSchemaMixin:
         standardized_schema["properties"]["data"] = schema
 
         return standardized_schema
-
-
-class AutoSchema(BaseAutoSchema, StandardizedSchemaMixin):
-    pass
