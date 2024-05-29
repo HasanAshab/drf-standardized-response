@@ -46,7 +46,6 @@ class StandardizedSchemaMixin:
             and self._response_standardizer.should_standardize()
         ):
             return response
-        print(self.path, schema)
 
         formatted_schema = self._standardize_response_schema(
             reference, is_array
