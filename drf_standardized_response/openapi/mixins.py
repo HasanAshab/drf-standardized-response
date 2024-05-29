@@ -8,6 +8,7 @@ class StandardizedSchemaMixin:
     def _get_response_for_code(
         self, serializer, status_code, media_types=None, direction="response"
     ):
+        is_array = False
         dummy_request = RequestFactory().get(self.path)
         self._response_standardizer = (
             package_settings.RESPONSE_STANDARDIZER_CLASS(
@@ -25,7 +26,12 @@ class StandardizedSchemaMixin:
             return response
 
         schema = content["application/json"]["schema"]
-        reference = schema.get("$ref", schema.get("items", {}).get("$ref"))
+
+        if "items" in schema:
+            is_array = True
+            reference = schema.get("items", {}).get("$ref")
+        else:
+            reference = schema.get("$ref")
         if not reference:
             return response
         if "ErrorResponse" in reference:
@@ -40,12 +46,15 @@ class StandardizedSchemaMixin:
             and self._response_standardizer.should_standardize()
         ):
             return response
+        print(self.path, schema)
 
-        formatted_schema = self._standardize_response_schema(reference)
+        formatted_schema = self._standardize_response_schema(
+            reference, is_array
+        )
         content["application/json"]["schema"] = formatted_schema
         return response
 
-    def _standardize_response_schema(self, reference):
+    def _standardize_response_schema(self, reference, is_array):
         dummy_response = Response(status=200)
         standardized_schema = {
             "type": "object",
@@ -62,6 +71,13 @@ class StandardizedSchemaMixin:
                     standardized_schema,
                 ]
             }
+
+        if is_array:
+            standardized_schema["properties"]["data"] = {
+                "type": "array",
+                "items": {"$ref": reference},
+            }
+            return standardized_schema
 
         schema_name = reference.split("/")[-1]
         schema_key = (schema_name, "schemas")
